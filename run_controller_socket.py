@@ -113,6 +113,11 @@ def _register_commands_with_controller_state(controller_state, socket_interface)
 
     socket_interface.add_command(release.__name__, release)
 
+    async def clear_nfc(sec=3):
+        await asyncio.sleep(sec)
+        logger.info("Clearing NFC content")
+        controller_state.set_nfc(None)
+
     async def nfc(file_path, sec=3):
         if controller_state.get_controller() == Controller.JOYCON_L:
             raise ValueError('NFC content cannot be set for JOYCON_L')
@@ -125,9 +130,7 @@ def _register_commands_with_controller_state(controller_state, socket_interface)
                 content = await _loop.run_in_executor(None, nfc_file.read)
                 logger.info("Setting NFC content: %s" % file_path)
                 controller_state.set_nfc(content)
-                await asyncio.sleep(sec)
-                logger.info("Clearing NFC content")
-                controller_state.set_nfc(None)
+                asyncio.ensure_future(clear_nfc(sec))
 
     socket_interface.add_command(nfc.__name__, nfc)
 
@@ -148,7 +151,15 @@ async def _main(args):
         # prepare the the emulated controller
         factory = controller_protocol_factory(controller, spi_flash=spi_flash)
         ctl_psm, itr_psm = 17, 19
-        transport, protocol = await create_hid_server(factory, reconnect_bt_addr=args.reconnect_bt_addr,
+
+        if args.bt_addr_file is not None:
+            bt_addr = open(args.bt_addr_file, "r").read()
+            if bt_addr == "ANY":
+                bt_addr = None
+        else:
+            bt_addr = args.reconnect_bt_addr
+
+        transport, protocol = await create_hid_server(factory, reconnect_bt_addr=bt_addr,
                                                       ctl_psm=ctl_psm,
                                                       itr_psm=itr_psm, capture_file=capture_file,
                                                       device_id=args.device_id)
@@ -156,7 +167,7 @@ async def _main(args):
         controller_state = protocol.get_controller_state()
 
         # Create socket interface and add some extra commands
-        socket_interface = ControllerSocketInterface("/home/pi/comms-socket", controller_state)
+        socket_interface = ControllerSocketInterface(args.socket, controller_state)
         _register_commands_with_controller_state(controller_state, socket_interface)
 
         # run the socket_interface
@@ -175,11 +186,13 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('controller', help='JOYCON_R, JOYCON_L or PRO_CONTROLLER')
+    parser.add_argument('-s', '--socket', default="./joycontrol.socket")
     parser.add_argument('-l', '--log')
     parser.add_argument('-d', '--device_id')
     parser.add_argument('--spi_flash')
     parser.add_argument('-r', '--reconnect_bt_addr', type=str, default=None,
                         help='The Switch console Bluetooth address, for reconnecting as an already paired controller')
+    parser.add_argument('--bt_addr_file')
     parser.add_argument('--nfc', type=str, default=None)
     args = parser.parse_args()
 

@@ -1,0 +1,9 @@
+[Unit]
+Description=Start joycontrol when the device id file is created
+
+[Path]
+PathExists=/home/pi/digiimo-pi/joycontrol-device-id
+Unit=joycontrol.service
+
+[Install]
+WantedBy=multi-user.target

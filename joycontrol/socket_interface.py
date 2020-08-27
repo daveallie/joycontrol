@@ -1,6 +1,6 @@
 import logging
 import os
-from asyncio import start_unix_server
+from asyncio import start_unix_server, get_event_loop
 
 from joycontrol.controller_state import ControllerState
 from joycontrol.transport import NotConnectedError
@@ -87,8 +87,11 @@ class ControllerSocketInterface(SocketInterface):
 
     async def handle_client(self, reader, writer):
         while True:
-            line = await reader.readuntil()
-            await self.handle_line(line.decode("utf-8").rstrip("\n"))
+            try:
+                line = await reader.readuntil()
+                await self.handle_line(line.decode("utf-8").rstrip("\n"))
+            except NotConnectedError:
+                get_event_loop().stop()
 
     def cleanup(self):
         self.server.close()
@@ -124,6 +127,9 @@ class ControllerSocketInterface(SocketInterface):
             action, file_path = line.split(":", 1)
             cmd = "nfc"
             args = [file_path]
+        elif line.startswith("heartbeat"):
+            return
+
 
         if hasattr(self, f'cmd_{cmd}'):
             try:

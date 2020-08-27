@@ -1,0 +1,23 @@
+[Unit]
+Description=Joycontrol Service
+ConditionPathExists=/home/pi/joycontrol/run_controller_socket.py
+ConditionPathExists=/home/pi/digiimo-pi/joycontrol-device-id
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+LimitNOFILE=1024
+
+Restart=no
+
+WorkingDirectory=/home/pi/joycontrol
+ExecStart=/usr/bin/python3 run_controller_socket.py PRO_CONTROLLER --socket /home/pi/digiimo-pi/joycontrol.socket --bt_addr_file /home/pi/digiimo-pi/joycontrol-device-id
+
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=joycontrol
+
+[Install]
+WantedBy=multi-user.target
