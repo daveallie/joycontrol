@@ -85,6 +85,7 @@ def _register_commands_with_controller_state(controller_state, socket_interface)
 
         ensure_valid_button(controller_state, *args)
 
+        logger.info("Holding %s" % " ".join(args))
         # wait until controller is fully connected
         await controller_state.connect()
         await button_press(controller_state, *args)
@@ -107,6 +108,7 @@ def _register_commands_with_controller_state(controller_state, socket_interface)
 
         ensure_valid_button(controller_state, *args)
 
+        logger.info("Releasing %s" % " ".join(args))
         # wait until controller is fully connected
         await controller_state.connect()
         await button_release(controller_state, *args)
@@ -125,6 +127,7 @@ def _register_commands_with_controller_state(controller_state, socket_interface)
             raise ValueError('"nfc" command requires file path to an nfc dump as argument!')
         else:
             # load and unload amiibo
+            await clear_nfc(0)
             _loop = asyncio.get_event_loop()
             with open(file_path, 'rb') as nfc_file:
                 content = await _loop.run_in_executor(None, nfc_file.read)
