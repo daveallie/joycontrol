@@ -312,10 +312,8 @@ class StickState:
         """
         Sets stick to center position using the calibration data.
         """
-        if self._calibration is None:
-            raise ValueError('No calibration data available.')
-        self._h_stick = self._calibration.h_center
-        self._v_stick = self._calibration.v_center
+        self._set_stick_h_center()
+        self._set_stick_v_center()
 
     def is_center(self, radius=0):
         return self._calibration.h_center - radius <= self._h_stick <= self._calibration.h_center + radius and \
@@ -325,37 +323,57 @@ class StickState:
         """
         Sets stick to up position using the calibration data.
         """
-        if self._calibration is None:
-            raise ValueError('No calibration data available.')
-        self._h_stick = self._calibration.h_center
-        self._v_stick = self._calibration.v_center + self._calibration.v_max_above_center
+        self._set_stick_h_center()
+        self._set_stick_v_up()
 
     def set_down(self):
         """
         Sets stick to down position using the calibration data.
         """
-        if self._calibration is None:
-            raise ValueError('No calibration data available.')
-        self._h_stick = self._calibration.h_center
-        self._v_stick = self._calibration.v_center - self._calibration.v_max_below_center
+        self._set_stick_h_center()
+        self._set_stick_v_down()
 
     def set_left(self):
         """
         Sets stick to left position using the calibration data.
         """
-        if self._calibration is None:
-            raise ValueError('No calibration data available.')
-        self._h_stick = self._calibration.h_center - self._calibration.h_max_below_center
-        self._v_stick = self._calibration.v_center
+        self._set_stick_h_left()
+        self._set_stick_v_center()
 
     def set_right(self):
         """
         Sets stick to right position using the calibration data.
         """
-        if self._calibration is None:
-            raise ValueError('No calibration data available.')
-        self._h_stick = self._calibration.h_center + self._calibration.h_max_above_center
-        self._v_stick = self._calibration.v_center
+        self._set_stick_h_right()
+        self._set_stick_v_center()
+
+    def set_upleft(self):
+        """
+        Sets stick to up-left position using the calibration data.
+        """
+        self._set_stick_h_left()
+        self._set_stick_v_up()
+
+    def set_upright(self):
+        """
+        Sets stick to up-right position using the calibration data.
+        """
+        self._set_stick_h_right()
+        self._set_stick_v_up()
+
+    def set_downleft(self):
+        """
+        Sets stick to down-left position using the calibration data.
+        """
+        self._set_stick_h_left()
+        self._set_stick_v_down()
+
+    def set_downright(self):
+        """
+        Sets stick to down-right position using the calibration data.
+        """
+        self._set_stick_h_right()
+        self._set_stick_v_down()
 
     def set_calibration(self, calibration):
         self._calibration = calibration
@@ -364,6 +382,36 @@ class StickState:
         if self._calibration is None:
             raise ValueError('No calibration data available.')
         return self._calibration
+
+    def _set_stick_v_up(self):
+        if self._calibration is None:
+            raise ValueError('No calibration data available.')
+        self._v_stick = self._calibration.v_center + self._calibration.v_max_above_center
+
+    def _set_stick_v_down(self):
+        if self._calibration is None:
+            raise ValueError('No calibration data available.')
+        self._v_stick = self._calibration.v_center - self._calibration.v_max_below_center
+
+    def _set_stick_v_center(self):
+        if self._calibration is None:
+            raise ValueError('No calibration data available.')
+        self._v_stick = self._calibration.v_center
+
+    def _set_stick_h_left(self):
+        if self._calibration is None:
+            raise ValueError('No calibration data available.')
+        self._h_stick = self._calibration.h_center - self._calibration.h_max_below_center
+
+    def _set_stick_h_right(self):
+        if self._calibration is None:
+            raise ValueError('No calibration data available.')
+        self._h_stick = self._calibration.h_center + self._calibration.h_max_above_center
+
+    def _set_stick_h_center(self):
+        if self._calibration is None:
+            raise ValueError('No calibration data available.')
+        self._h_stick = self._calibration.h_center
 
     @staticmethod
     def from_bytes(_3bytes):

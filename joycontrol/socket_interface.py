@@ -37,6 +37,14 @@ class ControllerSocketInterface(SocketInterface):
             stick.set_left()
         elif direction == 'right':
             stick.set_right()
+        elif direction == 'upleft':
+            stick.set_upleft()
+        elif direction == 'upright':
+            stick.set_upright()
+        elif direction == 'downleft':
+            stick.set_downleft()
+        elif direction == 'downright':
+            stick.set_downright()
         elif direction in ('h', 'horizontal'):
             if value is None:
                 raise ValueError(f'Missing value')
