@@ -15,6 +15,8 @@ Restart=no
 WorkingDirectory=/home/pi/joycontrol
 ExecStart=/usr/bin/python3 run_controller_socket.py PRO_CONTROLLER --socket /home/pi/digiimo-pi/joycontrol.socket --bt_addr_file /home/pi/digiimo-pi/joycontrol-device-id
 
+ExecStopPost=/home/pi/joycontrol/scripts/cleanup-files.sh
+
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=joycontrol

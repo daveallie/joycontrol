@@ -1,0 +1,7 @@
+[Unit]
+Description=Stop Joycontrol
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/pi/joycontrol/scripts/stop-joycontrol-service.sh

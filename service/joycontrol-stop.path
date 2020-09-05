@@ -1,0 +1,9 @@
+[Unit]
+Description=Stop joycontrol when the device id file is deleted
+
+[Path]
+PathChanged=/home/pi/digiimo-pi/joycontrol-device-id
+Unit=joycontrol-stop.service
+
+[Install]
+WantedBy=multi-user.target
